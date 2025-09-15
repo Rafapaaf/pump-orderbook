@@ -45,17 +45,27 @@ export const useKucoinSocket = () => {
         };
 
         ws.onmessage = (event) => {
-          const msg = JSON.parse(event.data);
+          try {
+            const msg = JSON.parse(event.data);
 
-          if (msg.topic === topic && msg.type === "message" && msg.data) {
-            const { bids = [], asks = [] } = msg.data as {
-              bids: [string, string][];
-              asks: [string, string][];
-            };
+            // ✅ Handle KuCoin ping to keep the connection alive
+            if (msg.type === "ping") {
+              ws?.send(JSON.stringify({ id: msg.id || Date.now(), type: "pong" }));
+              return; // don’t process further
+            }
 
-            // Store raw values (we'll sort in useMemo)
-            setBids(bids);
-            setAsks(asks);
+            // ✅ Handle market depth messages
+            if (msg.topic === topic && msg.type === "message" && msg.data) {
+              const { bids = [], asks = [] } = msg.data as {
+                bids: [string, string][];
+                asks: [string, string][];
+              };
+
+              setBids(bids);
+              setAsks(asks);
+            }
+          } catch (err) {
+            console.error("KuCoin WS parse error:", err, event.data);
           }
         };
 
