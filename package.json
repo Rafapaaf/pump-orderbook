@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:server": "ts-node server/kucoin-session.ts",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "build:server": "tsc -p tsconfig.server.json",
     "preview": "vite preview",
-    "dev:server": "ts-node server/kucoin-session.ts"
+    "start": "node dist/server/kucoin-session.js"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",

@@ -6,7 +6,7 @@ import { createServer } from "http";
 import { WebSocketServer, WebSocket as WS } from "ws";
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT ? Number(process.env.PORT) : 3001;
 
   // CORS for your Vite dev server
   app.use(
@@ -167,5 +167,5 @@ wss.on("connection", (client) => {
 });
 
 server.listen(port, () => {
-  console.log(`Proxy listening on http://localhost:${port}`);
+  console.log(`✅ Proxy listening on port ${port}`);
 });
