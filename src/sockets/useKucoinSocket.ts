@@ -1,3 +1,4 @@
+// src/sockets/useKucoinSocket.ts
 import { useEffect, useState, useMemo, useRef } from "react";
 
 type Order = [string, string];
@@ -6,6 +7,7 @@ export const useKucoinSocket = () => {
   const [bids, setBids] = useState<Order[]>([]);
   const [asks, setAsks] = useState<Order[]>([]);
   const reconnectTimer = useRef<NodeJS.Timeout | null>(null);
+  const retryDelay = useRef<number>(5000); // start at 5s
 
   useEffect(() => {
     let ws: WebSocket | null = null;
@@ -32,6 +34,7 @@ export const useKucoinSocket = () => {
 
         ws.onopen = () => {
           console.log("KuCoin WS connected ✅");
+
           ws?.send(
             JSON.stringify({
               id: Date.now(),
@@ -42,24 +45,29 @@ export const useKucoinSocket = () => {
             })
           );
 
-          // 🔄 Schedule reconnect before token expiry (~60s)
+          // Reset retry delay on successful connect
+          retryDelay.current = 5000;
+
+          // Refresh before token expiry (~60s)
           if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
           reconnectTimer.current = setTimeout(() => {
-            console.log("Reconnecting KuCoin WS (token refresh)...");
+            console.log("Refreshing KuCoin WS token...");
             ws?.close();
             connect();
-          }, 55_000); // refresh slightly before expiry
+          }, 55_000);
         };
 
         ws.onmessage = (event) => {
           try {
             const msg = JSON.parse(event.data);
 
+            // ✅ Keepalive
             if (msg.type === "ping") {
               ws?.send(JSON.stringify({ id: msg.id || Date.now(), type: "pong" }));
               return;
             }
 
+            // ✅ Market depth
             if (msg.topic === topic && msg.type === "message" && msg.data) {
               const { bids = [], asks = [] } = msg.data as {
                 bids: [string, string][];
@@ -75,9 +83,28 @@ export const useKucoinSocket = () => {
         };
 
         ws.onerror = (err) => console.error("KuCoin WS error:", err);
-        ws.onclose = () => console.warn("KuCoin WS closed ❌");
+
+        ws.onclose = () => {
+          console.warn("KuCoin WS closed ❌");
+
+          // Retry with backoff
+          if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
+          reconnectTimer.current = setTimeout(() => {
+            console.log(`Reconnecting in ${retryDelay.current / 1000}s...`);
+            connect();
+            retryDelay.current = Math.min(retryDelay.current * 2, 60000); // cap at 60s
+          }, retryDelay.current);
+        };
       } catch (err) {
         console.error("KuCoin WS setup failed:", err);
+
+        // Retry with backoff
+        if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
+        reconnectTimer.current = setTimeout(() => {
+          console.log(`Retrying connection in ${retryDelay.current / 1000}s...`);
+          connect();
+          retryDelay.current = Math.min(retryDelay.current * 2, 60000);
+        }, retryDelay.current);
       }
     }
 
@@ -89,6 +116,7 @@ export const useKucoinSocket = () => {
     };
   }, []);
 
+  // Sort + slice for display
   const view = useMemo(() => {
     const bidsNum = bids.map(([p, q]) => [parseFloat(p), q] as [number, string]);
     const asksNum = asks.map(([p, q]) => [parseFloat(p), q] as [number, string]);
