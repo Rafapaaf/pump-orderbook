@@ -1,35 +1,25 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
+import BinanceCandleChart from "./components/BinanceCandleChart";
+import BinanceOrderBook from "./components/BinanceOrderBook";
+import BybitOrderBook from "./components/BybitOrderBook";
+import KucoinOrderBook from "./components/KucoinOrderBook";
+import MexcOrderBook from "./components/MexcOrderBook";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="min-h-screen flex flex-col justify-end bg-black px-6 pb-6">
+      {/* Top candlestick chart */}
+      <BinanceCandleChart />
+
+      {/* Bottom order books */}
+      <div className="flex justify-center flex-wrap gap-4">
+        <BinanceOrderBook />
+        <BybitOrderBook />
+        <KucoinOrderBook />
+        <MexcOrderBook />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
