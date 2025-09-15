@@ -3,14 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "dev:server": "ts-node server/kucoin-session.ts",
-    "build": "tsc -b && vite build",
-    "build:server": "tsc -p tsconfig.server.json",
-    "preview": "vite preview",
-    "start": "node dist/server/kucoin-session.js"
-  },
+"scripts": {
+  "dev": "vite",
+  "build": "tsc -b && vite build",
+  "build:server": "tsc -p tsconfig.server.json",
+  "lint": "eslint .",
+  "preview": "vite preview",
+  "dev:server": "ts-node server/kucoin-session.ts",
+  "start": "node dist/kucoin-session.js"
+},
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
