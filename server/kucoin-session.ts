@@ -6,12 +6,12 @@ import { createServer } from "http";
 import { WebSocketServer, WebSocket as WS } from "ws";
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
   // CORS for your Vite dev server
   app.use(
     cors({
-      origin: "http://localhost:5173",
+      origin: "*",
     })
   );
 

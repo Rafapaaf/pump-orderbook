@@ -13,7 +13,12 @@ export const useKucoinSocket = () => {
     async function connect() {
       try {
         // Hit your local proxy server to get KuCoin session
-        const res = await fetch("http://localhost:3001/api/kucoin-session?product=futures");
+        const API_BASE =
+          import.meta.env.MODE === "development"
+            ? "http://localhost:3001"
+            : "https://pump-orderbook-2.onrender.com";
+
+        const res = await fetch(`${API_BASE}/api/kucoin-session`);
         if (!res.ok) throw new Error("Failed to fetch KuCoin session");
         const json = await res.json();
 

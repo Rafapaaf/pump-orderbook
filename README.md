@@ -1,69 +1,48 @@
-# React + TypeScript + Vite
+# Pump Orderbook 📊
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A **real-time trading dashboard** that aggregates **perpetual futures order books** and **candlestick charts** from multiple crypto exchanges into one unified view.  
 
-Currently, two official plugins are available:
+Built with **React + Vite + TailwindCSS** (frontend) and **Express + WebSockets** (backend proxy).  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## ✨ Features  
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 📈 **Live candlestick chart** (1-second candles) for Binance **PUMP/USDT Perps**  
+  - With **EMA20, EMA50, EMA200 overlays**  
+  - 6-decimal precision for microcap accuracy  
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- 📊 **Order Books from multiple exchanges** (20 levels depth, 10 bids + 10 asks):  
+  - Binance (Perps)  
+  - Bybit (Perps)  
+  - KuCoin (Perps)  
+  - MEXC (Perps)  
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- 🔌 **WebSocket integration** for ultra-fast updates  
+- ⚡ **Proxy server** to bypass CORS and manage exchange sessions  
+- 🎨 **TradingView-like UI** with Tailwind + Lightweight Charts  
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📷 Screenshots  
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+*(Add screenshots of your running app here — candlestick chart + order books grid)*  
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+
+## 🛠️ Tech Stack  
+
+- **Frontend:** React, Vite, TypeScript, TailwindCSS  
+- **Charting:** [Lightweight-Charts](https://github.com/tradingview/lightweight-charts)  
+- **Backend Proxy:** Node.js, Express, WebSockets  
+- **Exchanges Integrated:** Binance, Bybit, KuCoin, MEXC  
+
+---
+
+## 🚀 Getting Started  
+
+### 1. Clone the repo  
+
+```bash
+git clone https://github.com/Rafapaaf/pump-orderbook.git
+cd pump-orderbook

@@ -10,15 +10,20 @@ export function useMexcSocket(symbol: string = "BTC_USDT") {
   const pingTimer = useRef<number | null>(null);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:3001/ws/mexc");
+    const WS_BASE =
+      import.meta.env.MODE === "development"
+        ? "ws://localhost:3001"
+        : "wss://pump-orderbook-2.onrender.com";
+
+    const ws = new WebSocket(`${WS_BASE}/ws/mexc`);
     wsRef.current = ws;
 
     ws.onopen = () => {
       console.log("MEXC WS connected ✅");
       const subMsg = {
         method: "sub.dealDepth",
-        params: ["BTC_USDT"], // start with BTC for debugging
-        id: 1
+        params: ["BTC_USDT"], // you can change to PUMP_USDT later
+        id: 1,
       };
       ws.send(JSON.stringify(subMsg));
 

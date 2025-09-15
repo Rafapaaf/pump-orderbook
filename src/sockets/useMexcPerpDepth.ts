@@ -1,6 +1,11 @@
 // src/sockets/useMexcPerpDepth.ts
 import { useEffect, useMemo, useRef, useState } from "react";
 
+const API_BASE =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:3001"
+    : "https://pump-orderbook-2.onrender.com";
+
 type Level = [string, string]; // [price, qty]
 
 export function useMexcPerpDepth(symbol: string = "BTC_USDT", limit = 20, intervalMs = 1000) {
@@ -14,7 +19,9 @@ export function useMexcPerpDepth(symbol: string = "BTC_USDT", limit = 20, interv
     async function fetchDepth() {
       try {
         const r = await fetch(
-          `http://localhost:3001/api/mexc/perp-depth?symbol=${encodeURIComponent(symbol)}&limit=${limit}`
+          `${API_BASE}/api/mexc/perp-depth?symbol=${encodeURIComponent(
+            symbol
+          )}&limit=${limit}`
         );
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const json = (await r.json()) as { bids: [string, string][], asks: [string, string][] };
