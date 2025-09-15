@@ -16,7 +16,7 @@ export const useKucoinSocket = () => {
         const API_BASE =
           import.meta.env.MODE === "development"
             ? "http://localhost:3001"
-            : "https://pump-orderbook-2.onrender.com";
+            : "https://pump-orderbook-3.onrender.com";
 
         const res = await fetch(`${API_BASE}/api/kucoin-session`);
         if (!res.ok) throw new Error("Failed to fetch KuCoin session");

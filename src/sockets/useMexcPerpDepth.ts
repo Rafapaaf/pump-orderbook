@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 const API_BASE =
   import.meta.env.MODE === "development"
     ? "http://localhost:3001"
-    : "https://pump-orderbook-2.onrender.com";
+    : "https://pump-orderbook-3.onrender.com";
 
 type Level = [string, string]; // [price, qty]
 
