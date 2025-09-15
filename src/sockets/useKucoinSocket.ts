@@ -1,31 +1,30 @@
-// src/sockets/useKucoinSocket.ts
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 
 type Order = [string, string];
 
 export const useKucoinSocket = () => {
   const [bids, setBids] = useState<Order[]>([]);
   const [asks, setAsks] = useState<Order[]>([]);
+  const reconnectTimer = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     let ws: WebSocket | null = null;
 
     async function connect() {
       try {
-        // Hit your local proxy server to get KuCoin session
         const API_BASE =
           import.meta.env.MODE === "development"
             ? "http://localhost:3001"
             : "https://pump-orderbook-3.onrender.com";
 
-        const res = await fetch(`${API_BASE}/api/kucoin-session`);
+        const res = await fetch(`${API_BASE}/api/kucoin-session?product=futures`);
         if (!res.ok) throw new Error("Failed to fetch KuCoin session");
         const json = await res.json();
 
         const { token, instanceServers } = json.data;
         const endpoint = instanceServers[0].endpoint;
 
-        const symbol = "PUMPUSDTM"; // KuCoin perps symbol
+        const symbol = "PUMPUSDTM";
         const topic = `/contractMarket/level2Depth50:${symbol}`;
         const LIMIT = 10;
 
@@ -42,19 +41,25 @@ export const useKucoinSocket = () => {
               response: true,
             })
           );
+
+          // 🔄 Schedule reconnect before token expiry (~60s)
+          if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
+          reconnectTimer.current = setTimeout(() => {
+            console.log("Reconnecting KuCoin WS (token refresh)...");
+            ws?.close();
+            connect();
+          }, 55_000); // refresh slightly before expiry
         };
 
         ws.onmessage = (event) => {
           try {
             const msg = JSON.parse(event.data);
 
-            // ✅ Handle KuCoin ping to keep the connection alive
             if (msg.type === "ping") {
               ws?.send(JSON.stringify({ id: msg.id || Date.now(), type: "pong" }));
-              return; // don’t process further
+              return;
             }
 
-            // ✅ Handle market depth messages
             if (msg.topic === topic && msg.type === "message" && msg.data) {
               const { bids = [], asks = [] } = msg.data as {
                 bids: [string, string][];
@@ -79,21 +84,16 @@ export const useKucoinSocket = () => {
     connect();
 
     return () => {
-      if (ws) {
-        ws.close();
-      }
+      if (ws) ws.close();
+      if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
     };
   }, []);
 
-  // 🟢 Sort + slice for display
   const view = useMemo(() => {
     const bidsNum = bids.map(([p, q]) => [parseFloat(p), q] as [number, string]);
     const asksNum = asks.map(([p, q]) => [parseFloat(p), q] as [number, string]);
 
-    // bids: high → low
     const bidsHighToLow = bidsNum.sort((a, b) => b[0] - a[0]).slice(0, 10);
-
-    // asks: low → high (exchange best ask first), then reverse for high → low display
     const asksLowToHigh = asksNum.sort((a, b) => a[0] - b[0]).slice(0, 10);
     const asksHighToLow = [...asksLowToHigh].reverse();
 
@@ -103,5 +103,5 @@ export const useKucoinSocket = () => {
     };
   }, [bids, asks]);
 
-  return view; // { bids, asks }
+  return view;
 };
